@@ -122,4 +122,9 @@ public class Test2 {
         double cost = 10;
         System.out.println((income-cost)/income);
     }
+
+    @Test
+    public void test8() {
+
+    }
 }
