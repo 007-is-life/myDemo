@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.entity.User">
+            <id property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="username" column="username" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="age" column="age" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="bookId" column="book_id" jdbcType="INTEGER"/>
+    </resultMap>
+<!--联表查询一对一-->
+    <resultMap id="UserVO" type="com.example.vo.UserVO">
+        <id property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <association property="book" javaType="com.example.entity.Book">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="author" column="author" jdbcType="VARCHAR"/>
+            <result property="publish" column="publish" jdbcType="VARCHAR"/>
+            <result property="pages" column="pages" jdbcType="INTEGER"/>
+            <result property="price" column="price" jdbcType="FLOAT"/>
+            <result property="bookcaseid" column="bookcaseid" jdbcType="INTEGER"/>
+            <result property="abled" column="abled" jdbcType="INTEGER"/>
+        </association>
+    </resultMap>
+<!--联表查询一对多-->
+    <resultMap id="UserVO2" type="com.example.vo.UserVO2">
+        <id property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <collection property="books" ofType="com.example.entity.Book">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="author" column="author" jdbcType="VARCHAR"/>
+            <result property="publish" column="publish" jdbcType="VARCHAR"/>
+            <result property="pages" column="pages" jdbcType="INTEGER"/>
+            <result property="price" column="price" jdbcType="FLOAT"/>
+            <result property="bookcaseid" column="bookcaseid" jdbcType="INTEGER"/>
+            <result property="abled" column="abled" jdbcType="INTEGER"/>
+        </collection>
+    </resultMap>
+<!--懒加载-->
+    <resultMap id="UserVOLazy" type="com.example.vo.UserVO">
+        <id property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="bookId" column="book_id" javaType="INTEGER"/>
+        <association property="book" javaType="com.example.entity.Book"
+                    select="com.example.mapper.UserMapper.getBookById" column="book_id" fetchType="lazy">
+        </association>
+    </resultMap>
+
+    <resultMap id="Book" type="com.example.entity.Book">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="author" column="author" jdbcType="VARCHAR"/>
+        <result property="publish" column="publish" jdbcType="VARCHAR"/>
+        <result property="pages" column="pages" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="FLOAT"/>
+        <result property="bookcaseid" column="bookcaseid" jdbcType="INTEGER"/>
+        <result property="abled" column="abled" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,username,password,
+        age,create_time,book_id
+    </sql>
+
+    <select id="getUserById" parameterType="Integer" resultMap="UserVO">
+        select * from user,book where user.book_id=book.id and user.user_id=#{arg0}
+    </select>
+
+    <select id="getUserOVByBookcaseid" resultMap="UserVO2">
+        select * from user,book where user.bookcaseid=book.bookcaseid and user.user_id=#{arg0}
+    </select>
+
+    <select id="getUserVOByIdLazy" resultMap="UserVOLazy">
+        select * from user where user_id=#{arg0}
+    </select>
+
+    <select id="getBookById" resultMap="Book">
+        select * from book where id=#{arg0}
+    </select>
+
+    <!-- 开启二级缓存 -->
+    <cache eviction="LRU" flushInterval="100000" readOnly="true" size="1024"/>
+
+</mapper>
